@@ -15,6 +15,10 @@ security_ssh_allowed_groups: []
 security_sudoers_passwordless: []
 security_sudoers_passworded: []
 
+security_doas_conf: []
+security_doas_completions:  true
+security_doas_remove_sudo: true
+
 security_autoupdate_enabled: true
 security_autoupdate_blacklist: []
 security_autoupdate_additional_origins: []

@@ -1,0 +1,10 @@
+{{ ansible_managed | comment }}
+{% for passwordless_sudoer in security_sudoers_passwordless %}
+permit nopass {{ passwordless_sudoer }}
+{% endfor %}
+{% for passworded_sudoer in security_sudoers_passworded %}
+permit {{ passworded_sudoer }}
+{% endfor %}
+{% for rule in security_doas_conf %}
+{{ rule.state | default('permit', true) }} {{ 'nopass' if ( rule.nopass | default(false, true) ) else '' }} {{ 'persist' if ( rule.persist | default(false, true) ) else '' }} {{ 'nolog' if ( rule.nolog | default(false, true) ) else '' }} {{ 'keepenv' if ( rule.keepenv | default(false, true) ) else '' }} {{ 'setenv {' + ( rule.env | default('', true) ) + '}' if rule.env is defined else '' }} {{ ':' + rule.group | default('', true) if rule.group is defined else rule.user | default('', true) }} {{ 'as ' + (rule.target | default('', true)) if rule.target is defined else '' }} {{ 'cmd ' + ( rule.cmd | default('', true) ) if rule.cmd is defined else '' }}
+{% endfor %}

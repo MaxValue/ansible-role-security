@@ -20,7 +20,7 @@ Again: Your servers' security is *your* responsibility.
 
 ## Requirements
 
-For obvious reasons, `sudo` must be installed if you want to manage the sudoers file with this role.
+`sudo` must be installed if you want to manage the sudoers file with this role.
 
 On RedHat/CentOS systems, make sure you have the EPEL repository installed (you can include the `geerlingguy.repo-epel` role to get it installed).
 
@@ -65,10 +65,41 @@ The state of the SSH daemon. Typically this should remain `started`.
 
 The state of the `restart ssh` handler. Typically this should remain `restarted`.
 
+    security_doas_conf: []
+
+Configure doas. Options for entries include:
+
+  - `group` (one of this or the following is required)
+  - `user`
+  - `state`: permit (optional)
+  - `nopass`: false (optional)
+  - `persist`: false (optional)
+  - `nolog`: false (optional)
+  - `keepenv` (optional)
+  - `env` (optional)
+  - `target`: root (optional)
+  - `cmd` (optional)
+
+    security_doas_completions: true
+
+Add command completions when using doas for bash and other custom shells.
+
+    security_doas_completion_rc:
+
+Define a custom shell rc file path to enable the doas completions in.
+
+    security_doas_completion_include:
+
+Define the command to activate the doas completion in that custom shell rc file.
+
+    security_doas_remove_sudo: true
+
+Uninstall the sudo package. You must have set a root password beforehand.
+
     security_sudoers_passwordless: []
     security_sudoers_passworded: []
 
-A list of users who should be added to the sudoers file so they can run any command as root (via `sudo`) either without a password or requiring a password for each command, respectively.
+A list of users who should be added to the sudoers file / the doas config so they can run any command as root (via `sudo` or `doas` respectively) either without a password or requiring a password for each command, respectively.
 
     security_autoupdate_enabled: true
 

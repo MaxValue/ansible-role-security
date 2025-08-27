@@ -66,7 +66,9 @@
     validate: 'visudo -cf %s'
     mode: 0440
   with_items: "{{ security_sudoers_passwordless }}"
-  when: security_sudoers_passwordless | length > 0
+  when:
+    - not security_doas_remove_sudo
+    - security_sudoers_passwordless | length > 0
 
 - name: Add configured user accounts to passworded sudoers.
   lineinfile:
@@ -77,4 +79,6 @@
     validate: 'visudo -cf %s'
     mode: 0440
   with_items: "{{ security_sudoers_passworded }}"
-  when: security_sudoers_passworded | length > 0
+  when:
+    - not security_doas_remove_sudo
+    - security_sudoers_passworded | length > 0

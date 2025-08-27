@@ -1,0 +1,77 @@
+---
+- name: Install doas (RedHat).
+  ansible.builtin.package:
+    name: opendoas
+    state: present
+    enablerepo: epel
+  when: ansible_os_family == 'RedHat'
+
+- name: Install doas (Debian).
+  ansible.builtin.package:
+    name: doas
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Copy doas custom configuration file into place.
+  ansible.builtin.template:
+    src: doas.j2
+    dest: /etc/doas.conf
+    owner: root
+    group: root
+    mode: 0400
+    validate: doas -C %s
+
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
+  when: security_doas_completions
+
+- name: Add bash completions for doas (with bash-completion package)
+  ansible.builtin.lineinfile:
+    path: /etc/bash.bashrc
+    search_string: complete -F _command doas
+    state: present
+    line: complete -F _command doas
+  when:
+    - security_doas_completions
+    - "'bash' in ansible_facts.packages"
+    - "'bash-completion' not in ansible_facts.packages"
+
+- name: Add bash completions for doas (without bash-completion package)
+  ansible.builtin.lineinfile:
+    path: /etc/bash.bashrc
+    search_string: complete -cf doas
+    state: present
+    line: complete -cf doas
+  when:
+    - security_doas_completions
+    - "'bash' in ansible_facts.packages"
+    - "'bash-completion' not in ansible_facts.packages"
+
+- name: Add shell completions for doas
+  ansible.builtin.lineinfile:
+    path: "{{ security_doas_completion_rc }}"
+    search_string: "{{ security_doas_completion_include }}"
+    state: present
+    line: "{{ security_doas_completion_include }}"
+  when:
+    - security_doas_completions
+    - security_doas_completion_rc is defined
+    - security_doas_completion_include is defined
+
+- name: Uninstall sudo (RedHat).
+  ansible.builtin.package:
+    name: sudo
+    state: absent
+    enablerepo: epel
+  when:
+    - ansible_os_family == 'RedHat'
+    - security_doas_remove_sudo
+
+- name: Uninstall sudo (Debian).
+  ansible.builtin.package:
+    name: sudo
+    state: absent
+  when:
+    - ansible_os_family == 'Debian'
+    - security_doas_remove_sudo
